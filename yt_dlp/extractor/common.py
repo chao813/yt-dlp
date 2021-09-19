@@ -18,6 +18,7 @@ from ..compat import (
     compat_cookies_SimpleCookie,
     compat_etree_Element,
     compat_etree_fromstring,
+    compat_expanduser,
     compat_getpass,
     compat_http_client,
     compat_os_name,
@@ -1166,7 +1167,10 @@ class InfoExtractor(object):
 
         if self.get_param('usenetrc', False):
             try:
-                info = netrc.netrc().authenticators(netrc_machine)
+                netrc_file = compat_expanduser(self.get_param('netrc_location') or '~')
+                if os.path.isdir(netrc_file):
+                    netrc_file = os.path.join(netrc_file, '.netrc')
+                info = netrc.netrc(file=netrc_file).authenticators(netrc_machine)
                 if info is not None:
                     username = info[0]
                     password = info[2]
@@ -2618,8 +2622,10 @@ class InfoExtractor(object):
                             base_url = base_url_e.text + base_url
                             if re.match(r'^https?://', base_url):
                                 break
-                    if mpd_base_url and not re.match(r'^https?://', base_url):
-                        if not mpd_base_url.endswith('/') and not base_url.startswith('/'):
+                    if mpd_base_url and base_url.startswith('/'):
+                        base_url = compat_urlparse.urljoin(mpd_base_url, base_url)
+                    elif mpd_base_url and not re.match(r'^https?://', base_url):
+                        if not mpd_base_url.endswith('/'):
                             mpd_base_url += '/'
                         base_url = mpd_base_url + base_url
                     representation_id = representation_attrib.get('id')
