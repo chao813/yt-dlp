@@ -60,5 +60,5 @@ class CGTNIE(InfoExtractor):
                                                 webpage, 'category', fatal=False),
             'author': self._html_search_regex(r'<div class="news-author-name">\s*(.+?)\s*</div>',
                                               webpage, 'author', default=None, fatal=False),
-            'timestamp': try_get(unified_timestamp(datetime_str), lambda x: x - 8 * 3600),
+            'timestamp': try_get(unified_timestamp(datetime_str), lambda x: x - 8 * 3600), 
         }
